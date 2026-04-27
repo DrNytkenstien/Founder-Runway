@@ -4,8 +4,20 @@ import { useMemo, useState } from 'react';
 import { AlertTriangle, ShieldCheck } from 'lucide-react';
 
 const formatCurrency = (value: string) => {
-  // Basic formatting to keep the input experience clean.
-  return value.replace(/[^0-9.]/g, '');
+  const cleaned = value.replace(/[^0-9.]/g, '');
+  const [integer, ...decimalParts] = cleaned.split('.');
+  const decimal = decimalParts.join('');
+  return decimal !== '' ? `${integer}.${decimal}` : integer;
+};
+
+const formatNumberDisplay = (value: string) => {
+  if (!value) {
+    return '';
+  }
+
+  const [integer, decimal] = value.split('.');
+  const formattedInteger = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return decimal !== undefined ? `${formattedInteger}.${decimal}` : formattedInteger;
 };
 
 const stateThemes = {
@@ -69,6 +81,7 @@ const getThemeForRunway = (runway: number | null) => {
 export default function HomePage() {
   const [cashOnHand, setCashOnHand] = useState('');
   const [monthlyBurn, setMonthlyBurn] = useState('');
+  const [burnAdjustment, setBurnAdjustment] = useState(0);
 
   const runway = useMemo(() => {
     const burn = parseFloat(monthlyBurn);
@@ -85,8 +98,6 @@ export default function HomePage() {
     // Real-time runway calculation, rounded to one decimal place.
     return Math.round((cash / burn) * 10) / 10;
   }, [cashOnHand, monthlyBurn]);
-
-  const [burnAdjustment, setBurnAdjustment] = useState(0);
 
   const hypotheticalRunway = useMemo(() => {
     const burn = parseFloat(monthlyBurn);
@@ -162,7 +173,20 @@ export default function HomePage() {
         className={`mx-auto w-full max-w-xl rounded-3xl border border-slate-800 ${cardBgClasses} p-8 shadow-2xl shadow-slate-950/20 sm:p-10 ${status?.pulse ? 'animate-pulse' : ''}`}
       >
         <div className="mb-8 text-center">
-          <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Founder’s Runway</p>
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
+            <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Founder’s Runway</p>
+            <button
+              type="button"
+              onClick={() => {
+                setCashOnHand('');
+                setMonthlyBurn('');
+                setBurnAdjustment(0);
+              }}
+              className="text-xs text-slate-400 transition hover:text-white"
+            >
+              Reset
+            </button>
+          </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
             Monthly runway calculator
           </h1>
@@ -174,24 +198,32 @@ export default function HomePage() {
         <div className="space-y-6">
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-slate-300">Total Cash on Hand</span>
-            <input
-              value={cashOnHand}
-              onChange={(event) => setCashOnHand(formatCurrency(event.target.value))}
-              placeholder="e.g. 120000"
-              inputMode="decimal"
-              className={`w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 text-lg text-white outline-none transition ${focusClasses}`}
-            />
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">₹</span>
+              <input
+                type="text"
+                value={formatNumberDisplay(cashOnHand)}
+                onChange={(event) => setCashOnHand(formatCurrency(event.target.value))}
+                placeholder="0"
+                inputMode="decimal"
+                className={`w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 pl-10 text-lg text-white outline-none transition ${focusClasses}`}
+              />
+            </div>
           </label>
 
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-slate-300">Monthly Burn Rate</span>
-            <input
-              value={monthlyBurn}
-              onChange={(event) => setMonthlyBurn(formatCurrency(event.target.value))}
-              placeholder="e.g. 20000"
-              inputMode="decimal"
-              className={`w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 text-lg text-white outline-none transition ${focusClasses}`}
-            />
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">₹</span>
+              <input
+                type="text"
+                value={formatNumberDisplay(monthlyBurn)}
+                onChange={(event) => setMonthlyBurn(formatCurrency(event.target.value))}
+                placeholder="0"
+                inputMode="decimal"
+                className={`w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 pl-10 text-lg text-white outline-none transition ${focusClasses}`}
+              />
+            </div>
           </label>
 
           <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6">
