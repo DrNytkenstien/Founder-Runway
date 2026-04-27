@@ -77,6 +77,22 @@ export default function HomePage() {
     };
   }, [runway]);
 
+  const estimatedZeroCashDate = useMemo(() => {
+    if (runway === null || !Number.isFinite(runway)) {
+      return null;
+    }
+
+    const today = new Date();
+    const daysToZero = runway * 30.436875; // average month length
+    const zeroDate = new Date(today.getTime() + daysToZero * 24 * 60 * 60 * 1000);
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(zeroDate);
+  }, [runway]);
+
   const focusClasses = status?.inputFocus ?? 'focus:border-slate-500 focus:ring-2 focus:ring-slate-500/15';
   const wrapperStyle = status ? { backgroundImage: status.gradient, backgroundRepeat: 'no-repeat', backgroundPosition: 'top center' } : undefined;
   const cardBgClasses = status?.cardBg ?? 'bg-slate-900/95';
@@ -123,9 +139,16 @@ export default function HomePage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Projected runway</p>
-                <p className={`mt-3 text-5xl font-semibold ${status?.numberClass ?? 'text-white'}`}>
-                  {runway === null ? '—' : `${runway} months`}
-                </p>
+                <div>
+                  <p className={`mt-3 text-5xl font-semibold ${status?.numberClass ?? 'text-white'}`}>
+                    {runway === null ? '—' : `${runway} months`}
+                  </p>
+                  {estimatedZeroCashDate ? (
+                    <p className={`mt-3 text-sm ${status?.numberClass ?? 'text-slate-300'}`}>
+                      Estimated Zero-Cash Date: {estimatedZeroCashDate}
+                    </p>
+                  ) : null}
+                </div>
               </div>
               <div className="shrink-0 rounded-3xl border border-slate-800 bg-slate-900/80 p-4">
                 {status ? (
