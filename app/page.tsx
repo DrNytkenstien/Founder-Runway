@@ -34,19 +34,58 @@ export default function HomePage() {
     }
 
     if (runway < 3) {
-      return { label: 'Urgent', color: 'bg-red-100 text-red-700', icon: AlertTriangle };
+      return {
+        label: 'Urgent',
+        badgeClass: 'bg-red-100 text-red-700',
+        numberClass: 'text-red-400',
+        cardBg: 'bg-red-950/95',
+        innerBg: 'bg-red-950/85',
+        inputFocus: 'focus:border-red-400 focus:ring-2 focus:ring-red-500/20',
+        iconColor: 'text-red-400',
+        gradient: 'radial-gradient(circle_at_top, rgba(239,68,68,0.14), transparent 36%)',
+        pulse: true,
+        icon: AlertTriangle,
+      };
     }
 
     if (runway < 6) {
-      return { label: 'Warning', color: 'bg-yellow-100 text-yellow-700', icon: AlertTriangle };
+      return {
+        label: 'Warning',
+        badgeClass: 'bg-yellow-100 text-yellow-700',
+        numberClass: 'text-amber-300',
+        cardBg: 'bg-amber-950/95',
+        innerBg: 'bg-amber-950/85',
+        inputFocus: 'focus:border-amber-400 focus:ring-2 focus:ring-yellow-500/20',
+        iconColor: 'text-amber-300',
+        gradient: 'radial-gradient(circle_at_top, rgba(245,158,11,0.14), transparent 36%)',
+        pulse: false,
+        icon: AlertTriangle,
+      };
     }
 
-    return { label: 'Safe', color: 'bg-emerald-100 text-emerald-700', icon: ShieldCheck };
+    return {
+      label: 'Safe',
+      badgeClass: 'bg-emerald-100 text-emerald-700',
+      numberClass: 'text-emerald-300',
+      cardBg: 'bg-emerald-950/95',
+      innerBg: 'bg-emerald-950/85',
+      inputFocus: 'focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20',
+      iconColor: 'text-emerald-300',
+      gradient: 'radial-gradient(circle_at_top, rgba(16,185,129,0.14), transparent 36%)',
+      pulse: false,
+      icon: ShieldCheck,
+    };
   }, [runway]);
 
+  const focusClasses = status?.inputFocus ?? 'focus:border-slate-500 focus:ring-2 focus:ring-slate-500/15';
+  const wrapperStyle = status ? { backgroundImage: status.gradient, backgroundRepeat: 'no-repeat', backgroundPosition: 'top center' } : undefined;
+  const cardBgClasses = status?.cardBg ?? 'bg-slate-900/95';
+
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100">
-      <div className="mx-auto w-full max-w-xl rounded-3xl border border-slate-800 bg-slate-900/95 p-8 shadow-2xl shadow-slate-950/20 sm:p-10">
+    <main className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100" style={wrapperStyle}>
+      <div
+        className={`mx-auto w-full max-w-xl rounded-3xl border border-slate-800 ${cardBgClasses} p-8 shadow-2xl shadow-slate-950/20 sm:p-10 ${status?.pulse ? 'animate-pulse' : ''}`}
+      >
         <div className="mb-8 text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-slate-500">Founder’s Runway</p>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -65,7 +104,7 @@ export default function HomePage() {
               onChange={(event) => setCashOnHand(formatCurrency(event.target.value))}
               placeholder="e.g. 120000"
               inputMode="decimal"
-              className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 text-lg text-white outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
+              className={`w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 text-lg text-white outline-none transition ${focusClasses}`}
             />
           </label>
 
@@ -76,7 +115,7 @@ export default function HomePage() {
               onChange={(event) => setMonthlyBurn(formatCurrency(event.target.value))}
               placeholder="e.g. 20000"
               inputMode="decimal"
-              className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 text-lg text-white outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-500/20"
+              className={`w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 text-lg text-white outline-none transition ${focusClasses}`}
             />
           </label>
 
@@ -84,20 +123,20 @@ export default function HomePage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sm uppercase tracking-[0.24em] text-slate-500">Projected runway</p>
-                <p className="mt-3 text-5xl font-semibold text-white">
+                <p className={`mt-3 text-5xl font-semibold ${status?.numberClass ?? 'text-white'}`}>
                   {runway === null ? '—' : `${runway} months`}
                 </p>
               </div>
               <div className="shrink-0 rounded-3xl border border-slate-800 bg-slate-900/80 p-4">
                 {status ? (
-                  <status.icon className="h-6 w-6" aria-hidden="true" />
+                  <status.icon className={`h-6 w-6 ${status.iconColor}`} aria-hidden="true" />
                 ) : (
                   <ShieldCheck className="h-6 w-6 text-slate-400" aria-hidden="true" />
                 )}
               </div>
             </div>
 
-            <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-950/90 p-4 text-sm text-slate-300">
+            <div className={`mt-6 rounded-3xl border border-slate-800 ${status?.innerBg ?? 'bg-slate-950/90'} p-4 text-sm text-slate-300`}>
               {monthlyBurn === '' || parseFloat(monthlyBurn) <= 0 ? (
                 <p className="text-amber-200">Enter valid burn rate to calculate runway.</p>
               ) : runway === null ? (
@@ -105,7 +144,7 @@ export default function HomePage() {
               ) : (
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <p>
-                    Status: <span className={status?.color ?? 'text-slate-300'}>{status?.label}</span>
+                    Status: <span className={status?.badgeClass ?? 'text-slate-300'}>{status?.label ?? 'Unknown'}</span>
                   </p>
                   <p className="text-slate-400">Runway is calculated as Cash ÷ Burn.</p>
                 </div>
