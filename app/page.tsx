@@ -129,6 +129,22 @@ export default function HomePage() {
 
   const hypotheticalStatus = useMemo(() => getThemeForRunway(hypotheticalRunway), [hypotheticalRunway]);
 
+  const baselineDaysRemaining = useMemo(() => {
+    if (runway === null || !Number.isFinite(runway)) {
+      return null;
+    }
+
+    return Math.round(runway * 30.44);
+  }, [runway]);
+
+  const scenarioDaysRemaining = useMemo(() => {
+    if (hypotheticalRunway === null || !Number.isFinite(hypotheticalRunway)) {
+      return null;
+    }
+
+    return Math.round(hypotheticalRunway * 30.44);
+  }, [hypotheticalRunway]);
+
   const scenarioZeroCashDate = useMemo(() => {
     if (hypotheticalRunway === null || !Number.isFinite(hypotheticalRunway)) {
       return null;
@@ -234,6 +250,12 @@ export default function HomePage() {
                   <p className={`mt-3 text-5xl font-semibold ${status?.numberClass ?? 'text-white'}`}>
                     {runway === null ? '—' : `${runway} months`}
                   </p>
+                  {baselineDaysRemaining !== null ? (
+                    <p className={`mt-3 flex items-center gap-2 text-2xl font-semibold ${status?.textClass ?? 'text-slate-300'} ${status?.pulse ? 'animate-pulse' : ''}`}>
+                      <span aria-hidden="true">⌛</span>
+                      {baselineDaysRemaining} days remaining
+                    </p>
+                  ) : null}
                   {estimatedZeroCashDate ? (
                     <p className={`mt-3 text-sm ${status?.numberClass ?? 'text-slate-300'}`}>
                       Estimated Zero-Cash Date: {estimatedZeroCashDate}
@@ -303,6 +325,12 @@ export default function HomePage() {
                       <p className={`text-2xl font-semibold ${hypotheticalStatus?.textClass ?? 'text-white'}`}>
                         {hypotheticalRunway} months
                       </p>
+                      {scenarioDaysRemaining !== null ? (
+                        <p className={`flex items-center gap-2 text-xl font-semibold ${hypotheticalStatus?.textClass ?? 'text-white'}`}>
+                          <span aria-hidden="true">⏱️</span>
+                          {scenarioDaysRemaining} days remaining
+                        </p>
+                      ) : null}
                       {runwayDelta !== null ? (
                         <>
                           <p className={`${hypotheticalStatus?.textClass ?? 'text-white'}`}>
